@@ -197,11 +197,15 @@ This csv file contains the original squirrel sightings data recorded in ArcGIS F
 
 # all_transects.csv
 This csv file contains parameters, both those recorded in the field and those estimated using ArcGIS Pro, for all transects, as needed to run the statistical analysis in R.
-|Field					        |Decription|
+|Column				              |Decription|
 |-------------------------------|----------|
 |dur.min|The number of minutes spent actively looking for squirrels during the half-hour block in which the transect occured|
 |min.T.degrees.F|The lowest temperature recorded from Apple Weather during the given transect, in degrees Fahrenheit. 
-|min.T.degrees.C|The same information but converted to degrees Celsius. 'estimated.min.T.degrees.F' contains estimated temperature in degrees Fanhrenheit for transects on which no squirrels were seen, and temperatures was never recorded. (This data is the same as 'min.T.degrees.F' for transects where temperatures were recorded in the field.) 'estimated.min.T.degrees.C' contains the same information but converted to degrees Celsius. 'max.T.degrees.F' contains the maximum temeprature recorded along the transect, in degrees Fanhrenheit. 'max.T.degrees.C' contains the same information but converted to degrees Celsius.
+|min.T.degrees.C|The same information but converted to degrees Celsius. 
+|estimated.min.T.degrees.F|Estimated temperature in degrees Fanhrenheit for transects on which no squirrels were seen, and temperatures was never recorded. (This data is the same as 'min.T.degrees.F' for transects where temperatures were recorded in the field.) 
+|estimated.min.T.degrees.C|The same information but converted to degrees Celsius. 
+|max.T.degrees.F|The maximum temeprature recorded along the transect, in degrees Fanhrenheit. 
+|max.T.degrees.C|The same information but converted to degrees Celsius.
 
 # trees_by_species.csv
 This csv file contains the number of trees by species within the effective strip width of all transects combined. This was generated in ArcGIS Pro by duplicating, merging, and dissolving the transect buffer layers and then using the Spatial Join tool, with Join Operaton as Join one to many and Match Option as Intersect, to export all trees within the buffer area to a new layer, which was exported as an xlsx file using Table To Excel. This data was imported to R, trees were summarized by species, and this was exported to the tree_by_species.csv file. Duplicate rows by species were combined by hand. If a genus contained several species, these were summed and placed in a new row with the total number of trees per genus.
