@@ -195,17 +195,45 @@ This R file contains all the code needed to reproduce the statistical analysis o
 # Squirrel_Survey.csv
 This csv file contains the original squirrel sightings data recorded in ArcGIS Field Maps. Some time stamps have been corrected for data points originally recorded out of Field Maps on the evening of the 16th and entered at the geographic location in Field Maps on July 20th or 21st.
 
-# all_transects.csv
-This csv file contains parameters, both those recorded in the field and those estimated using ArcGIS Pro, for all transects, as needed to run the statistical analysis in R.
 |Column				              |Decription|
 |-------------------------------|----------|
-|dur.min|The number of minutes spent actively looking for squirrels during the half-hour block in which the transect occured|
-|min.T.degrees.F|The lowest temperature recorded from Apple Weather during the given transect, in degrees Fahrenheit. 
-|min.T.degrees.C|The same information but converted to degrees Celsius. 
-|estimated.min.T.degrees.F|Estimated temperature in degrees Fanhrenheit for transects on which no squirrels were seen, and temperatures was never recorded. (This data is the same as 'min.T.degrees.F' for transects where temperatures were recorded in the field.) 
-|estimated.min.T.degrees.C|The same information but converted to degrees Celsius. 
-|max.T.degrees.F|The maximum temeprature recorded along the transect, in degrees Fanhrenheit. 
-|max.T.degrees.C|The same information but converted to degrees Celsius.
+|OBJECTID                       |
+|Date/Time                      |
+|Temperature                    |
+|Cloud cover (%)                |
+|Species                        |
+|Canopy cover (%)               |
+|Behavior                       |
+|Substrate/surface              |
+|Notes                          |
+|x                              |
+|y                              |
+|duplicate                      |
+
+# all_transects.csv
+This csv file contains parameters, both those recorded in the field and those estimated using ArcGIS Pro, for all transects, as needed to run the statistical analysis in R.
+
+|Column				              |Decription|
+|-------------------------------|----------|
+|date                           |
+|hour                           |
+|time.of.day                    |
+|dur.min                        |The number of minutes spent actively looking for squirrels during the half-hour block in which the transect occured|
+|min.T.degrees.F                |The lowest temperature recorded from Apple Weather during the given transect, in degrees Fahrenheit. 
+|min.T.degrees.C                |The same information but converted to degrees Celsius. 
+|estimated.min.T.degrees.F      |Estimated temperature in degrees Fanhrenheit for transects on which no squirrels were seen, and temperatures was never recorded. (This data is the same as 'min.T.degrees.F' for transects where temperatures were recorded in the field.) 
+|estimated.min.T.degrees.C      |The same information but converted to degrees Celsius. 
+|max.T.degrees.F                |The maximum temeprature recorded along the transect, in degrees Fanhrenheit. 
+|max.T.degrees.C                |The same information but converted to degrees Celsius.
+|num.squir                      |
+|squir.dens.sq.km               |
+|length.km                      |
+|area.sq.km                     |
+|num.trees                      |
+|tree.dens.sq.km                |
+|num.oaks                       |
+|oak.density.sq.km              |
+|buff.distance.m.planar         |
 
 # trees_by_species.csv
 This csv file contains the number of trees by species within the effective strip width of all transects combined. This was generated in ArcGIS Pro by duplicating, merging, and dissolving the transect buffer layers and then using the Spatial Join tool, with Join Operaton as Join one to many and Match Option as Intersect, to export all trees within the buffer area to a new layer, which was exported as an xlsx file using Table To Excel. This data was imported to R, trees were summarized by species, and this was exported to the tree_by_species.csv file. Duplicate rows by species were combined by hand. If a genus contained several species, these were summed and placed in a new row with the total number of trees per genus.
@@ -217,8 +245,4 @@ This csv file is a duplicate of the original Squirrel_Survey.csv file, but dupli
 This csv file is a duplicate of the original Squirrel_Survey.csv file, but duplicate observations of the same squirrel near the same tree at the same time are marked as "yes" in the column "pseudorep".
 
 
-Hour			The hour of day of the half-hour block in which the survey was conducted
-
-Duration		Actual time in number of minutes spent surveying for squirrels during the hlaf-hour block
-
-   
+ 
