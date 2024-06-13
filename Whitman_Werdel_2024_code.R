@@ -193,7 +193,7 @@ print(AICc_results_3)
 all_trees <- read.csv('trees_by_species.csv')
 occu_trees <- read.csv('squirrels_in_trees.csv')
 near_trees <- read.csv('squirrels_near_trees.csv')
-near_trees <- subset(near_trees, pseudorep != "yes")
+near_trees <- subset(near_trees, duplicate != "yes")
 
 # Summarize number of occupied trees by species
 occu_trees_1 <- occu_trees %>%
