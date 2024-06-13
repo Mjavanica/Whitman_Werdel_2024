@@ -189,8 +189,14 @@ Resulting vector layer of points from merging New Tree Inventory and Old Tree In
 ### Quercus_Only
 Resulting vector layer of points exported after Select by Attribute on Merged_Trees, selecting for Genus EQUALS Quercus. This layer contains only oak (*Quercus* sp.) trees.
 
+# Whitman_Werdel_2024_code.R
+R file containing all the code needed to reproduce the statistical analysis of the paper. 
+
+# Whitman_Werdel_2024_code.Rmd
+R Markdown file contaoning all the code needed to reproduce the statistical analysis of the paper.
+
 # whitman_werdel_fox_squirrel_code.R
-This R file contains all the code needed to reproduce the statistical analysis of the paper. 
+This R file contains all the code needed to reproduce the statistical analysis of the paper.
 
 # Squirrel_Survey.csv
 This csv file contains the original squirrel sightings data recorded in ArcGIS Field Maps. Some time stamps have been corrected for data points originally recorded out of Field Maps on the evening of the 16th and entered at the geographic location in Field Maps on July 20th or 21st.
