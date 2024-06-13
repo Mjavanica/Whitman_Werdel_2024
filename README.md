@@ -197,18 +197,18 @@ This csv file contains the original squirrel sightings data recorded in ArcGIS F
 
 |Column				              |Decription|
 |-------------------------------|----------|
-|OBJECTID                       |
-|Date/Time                      |
-|Temperature                    |
-|Cloud cover (%)                |
-|Species                        |
-|Canopy cover (%)               |
-|Behavior                       |
-|Substrate/surface              |
-|Notes                          |
-|x                              |
-|y                              |
-|duplicate                      |
+|OBJECTID                       |Unique ID number for each squirrel sighting point
+|Date/Time                      |Date and time in mm/dd/yyyy hh:mm:ss AM/PM format. Date and time listed here are incorrect for data points entered into Field Maps after-the-fact.
+|Temperature                    |Temperature in degrees Fahrenheit at the time of the sighting, as reported in the Apple Weather app
+|Cloud cover (%)                |Approximate percent cloud cover at the time and location of the sighting, rounded to 0, 25, 50, 75, or 100%
+|Species                        |Species of tree closest to the squirrel, as identified in the field. "Other" represents tree species that was not an option in the Field Maps drop-down menu.
+|Canopy cover (%)               |Percent of area directly above the squirrel at time and location of sighting covered by tree canopy, reported as categorical ranges: 0-25%, 25-50%, 50-75%, or 75-100%.
+|Behavior                       |Categorical behavior at the time of the sighting: Eating (for foraging or feeding), Interaction (between 2 or more squirrels), Nest only (for points representing a squirrel nest, but not an actual squirrel sighting), Nest-building, Resting, and Traveling (any active movement not during obvious foraging or feeding)
+|Substrate/surface              |Asphalt/street, Bare ground/dirt, Concreete/sidewalk (for paved surface other than a street), Grass, Mulch, Other, or Tree
+|Notes                          |Comments on squirrel sighting, including correct time for data points originally collected without Field Maps and entered in the app later on
+|x                              |Decimal latitude of the squirrel's location
+|y                              |Decimal longitude of the squirrel's location
+|duplicate                      |"yes" if the observation is of the same squirrel already observed before during the same transect.
 
 # all_transects.csv
 This csv file contains parameters, both those recorded in the field and those estimated using ArcGIS Pro, for all transects, as needed to run the statistical analysis in R.
@@ -239,10 +239,10 @@ This csv file contains parameters, both those recorded in the field and those es
 This csv file contains the number of trees by species within the effective strip width of all transects combined. This was generated in ArcGIS Pro by duplicating, merging, and dissolving the transect buffer layers and then using the Spatial Join tool, with Join Operaton as Join one to many and Match Option as Intersect, to export all trees within the buffer area to a new layer, which was exported as an xlsx file using Table To Excel. This data was imported to R, trees were summarized by species, and this was exported to the tree_by_species.csv file. Duplicate rows by species were combined by hand. If a genus contained several species, these were summed and placed in a new row with the total number of trees per genus.
 
 # squirrels_in_trees.csv
-This csv file is a duplicate of the original Squirrel_Survey.csv file, but duplicate observations of the same squirrel in the same tree at the same time are removed.
+This csv file is a duplicate of the original Squirrel_Survey.csv file but only contains unique individual observations of squirrels that were in trees.
 
 # squirrels_near_trees.csv
-This csv file is a duplicate of the original Squirrel_Survey.csv file, but duplicate observations of the same squirrel near the same tree at the same time are marked as "yes" in the column "pseudorep".
+This csv file is a duplicate of the original Squirrel_Survey.csv file, but duplicate observations of the same squirrel near the same tree at the same time are marked as "yes" in the column "duplicate".
 
 
  
