@@ -242,10 +242,10 @@ This csv file contains parameters, both those recorded in the field and those es
 This csv file contains the number of trees by species within the effective strip width of all transects combined. This was generated in ArcGIS Pro by duplicating, merging, and dissolving the transect buffer layers and then using the Spatial Join tool, with Join Operaton as Join one to many and Match Option as Intersect, to export all trees within the buffer area to a new layer, which was exported as an xlsx file using Table To Excel. This data was imported to R, trees were summarized by species, and this was exported to the tree_by_species.csv file. Duplicate rows by species were combined by hand. If a genus contained several species, these were summed and placed in a new row with the total number of trees per genus.
 
 # squirrels_in_trees.csv
-This csv file is a duplicate of the original Squirrel_Survey.csv file but only contains unique individual observations of squirrels that were in trees.
+This csv file is a duplicate of the original Squirrel_Survey.csv file but only contains unique individual observations of squirrels that were in trees. The column Genus has been added to specify trees that are *Ulmus* or *Quercus* spp. in order to calculate selection indices for each genus as a whole.
 
 # squirrels_near_trees.csv
-This csv file is a duplicate of the original Squirrel_Survey.csv file, but duplicate observations of the same squirrel near the same tree at the same time are marked as "yes" in the column "duplicate".
+This csv file is a duplicate of the original Squirrel_Survey.csv file, but duplicate observations of the same squirrel near the same tree at the same time are marked as "yes" in the column "duplicate". The column Genus has been added to specify trees that are *Ulmus* or *Quercus* spp. in order to calculate selection indices for each genus as a whole. OBJECTID, Temperature, Cloud cover (%), and notes columns are removed. 
 
 
  
