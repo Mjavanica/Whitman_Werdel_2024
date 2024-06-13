@@ -195,9 +195,6 @@ R file containing all the code needed to reproduce the statistical analysis of t
 # Whitman_Werdel_2024_code.Rmd
 R Markdown file contaoning all the code needed to reproduce the statistical analysis of the paper.
 
-# whitman_werdel_fox_squirrel_code.R
-This R file contains all the code needed to reproduce the statistical analysis of the paper.
-
 # Squirrel_Survey.csv
 This csv file contains the original squirrel sightings data recorded in ArcGIS Field Maps. Some time stamps have been corrected for data points originally recorded out of Field Maps on the evening of the 16th and entered at the geographic location in Field Maps on July 20th or 21st.
 
