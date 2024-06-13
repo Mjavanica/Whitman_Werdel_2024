@@ -168,7 +168,7 @@ Descriptions of the fields in each layer are below.
 
 
 ### Squirrel_Survey
-|Field					        |Decription|
+|Field					        |Description|
 |-------------------------------|----------|
 |OBJECTID *|Unique ID number for each squirrel sighting point|
 |Position source type|Integrated (System) Location Provider, Snapped, or User defined|
@@ -198,7 +198,7 @@ R Markdown file containing all the code needed to reproduce the statistical anal
 # Squirrel_Survey.csv
 This csv file contains the original squirrel sightings data recorded in ArcGIS Field Maps. Some time stamps have been corrected for data points originally recorded out of Field Maps on the evening of the 16th and entered at the geographic location in Field Maps on July 20th or 21st.
 
-|Column				              |Decription|
+|Column				              |Description|
 |-------------------------------|----------|
 |OBJECTID                       |Unique ID number for each squirrel sighting point
 |Date/Time                      |Date and time in mm/dd/yyyy hh:mm:ss AM/PM format. Date and time listed here are incorrect for data points entered into Field Maps after-the-fact.
@@ -216,7 +216,7 @@ This csv file contains the original squirrel sightings data recorded in ArcGIS F
 # all_transects.csv
 This csv file contains parameters, both those recorded in the field and those estimated using ArcGIS Pro, for all transects, as needed to run the statistical analysis in R.
 
-|Column				              |Decription|
+|Column				              |Description|
 |-------------------------------|----------|
 |date                           |Day of the month when the transect was conducted.
 |hour                           |Half-hour block during which the transect was walked. Half hour blocks starting halfway between two hours end in .5 (e.g. transect walked between 8:30 a.m. and 9:00 a.m. is designated 8.5)
