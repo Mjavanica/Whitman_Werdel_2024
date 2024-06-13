@@ -215,9 +215,9 @@ This csv file contains parameters, both those recorded in the field and those es
 
 |Column				              |Decription|
 |-------------------------------|----------|
-|date                           |
-|hour                           |
-|time.of.day                    |
+|date                           |Day of the month when the transect was conducted.
+|hour                           |Half-hour block during which the transect was walked. Half hour blocks starting halfway between two hours end in .5 (e.g. transect walked between 8:30 a.m. and 9:00 a.m. is designated 8.5)
+|time.of.day                    |Categorical time of day during which the transect was conducted: early morning (7:00 A.M. - 9:30 A.M.), late morning (9:30 A.M. - 12:00 P.M.), early evening (5:00 P.M. - 6:30 P.M.), or late evening (6:30 P.M. - 8:00 P.M.)
 |dur.min                        |The number of minutes spent actively looking for squirrels during the half-hour block in which the transect occured|
 |min.T.degrees.F                |The lowest temperature recorded from Apple Weather during the given transect, in degrees Fahrenheit. 
 |min.T.degrees.C                |The same information but converted to degrees Celsius. 
@@ -225,15 +225,15 @@ This csv file contains parameters, both those recorded in the field and those es
 |estimated.min.T.degrees.C      |The same information but converted to degrees Celsius. 
 |max.T.degrees.F                |The maximum temeprature recorded along the transect, in degrees Fanhrenheit. 
 |max.T.degrees.C                |The same information but converted to degrees Celsius.
-|num.squir                      |
-|squir.dens.sq.km               |
-|length.km                      |
-|area.sq.km                     |
-|num.trees                      |
-|tree.dens.sq.km                |
-|num.oaks                       |
-|oak.density.sq.km              |
-|buff.distance.m.planar         |
+|num.squir                      |Number of individual squirrels counted along the transect
+|squir.dens.sq.km               |Number of squirrels per square kilometers within the area observed along the transect.
+|length.km                      |Distance walked along the transect in kilometers
+|area.sq.km                     |Area of the round-ended buffer polygon around the transect, representing the observable area within effective strip width of the transect, as calculated in ArcGIS Pro by Calculate Geometric Attributes
+|num.trees                      |Number of trees in the merged Aggie Tree Layer within the effective strip width along the transect.
+|tree.dens.sq.km                |Density of trees per square kilometer within the effective strip width along the transect.
+|num.oaks                       |Number of oak trees (*Quercus* spp.) in the merged Aggie Tree Layer within the effective strip width along the transect.
+|oak.density.sq.km              |Density of oak trees (*Quercus* spp.) per square kilometer within the effective strip width along the transect.
+|buff.distance.m.planar         |One-sided effective strip width in meters along the transect.
 
 # trees_by_species.csv
 This csv file contains the number of trees by species within the effective strip width of all transects combined. This was generated in ArcGIS Pro by duplicating, merging, and dissolving the transect buffer layers and then using the Spatial Join tool, with Join Operaton as Join one to many and Match Option as Intersect, to export all trees within the buffer area to a new layer, which was exported as an xlsx file using Table To Excel. This data was imported to R, trees were summarized by species, and this was exported to the tree_by_species.csv file. Duplicate rows by species were combined by hand. If a genus contained several species, these were summed and placed in a new row with the total number of trees per genus.
