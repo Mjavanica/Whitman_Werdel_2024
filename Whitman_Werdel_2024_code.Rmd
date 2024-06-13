@@ -221,17 +221,17 @@ near_trees <- subset(near_trees, duplicate != "yes")
 
 # Summarize number of occupied trees by species
 occu_trees_1 <- occu_trees %>%
-  group_by(sp_name) %>%
+  group_by(Species) %>%
   summarize(Abundance = n_distinct(Date.Time))
 occu_trees_2 <- occu_trees %>%
   group_by(Genus) %>%
   summarize(Abundance = n_distinct(Date.Time)) %>%
-  rename(sp_name = Genus)
-occu_trees_2 <- subset(occu_trees_2, sp_name != "Triadica sp.")
-occu_trees_2 <- subset(occu_trees_2, sp_name != "Lagerstroemia sp.")
-occu_trees_2 <- subset(occu_trees_2, sp_name != "Unknown")
+  rename(Species = Genus)
+occu_trees_2 <- subset(occu_trees_2, Species != "Triadica sp.")
+occu_trees_2 <- subset(occu_trees_2, Species != "Lagerstroemia sp.")
+occu_trees_2 <- subset(occu_trees_2, Species != "Unknown")
 occupied <- rbind(occu_trees_1, occu_trees_2)
-sel_data <- all_trees %>% full_join(occupied, by="sp_name")
+sel_data <- all_trees %>% full_join(occupied, by="Species")
 sel_data <- sel_data %>%
   rename(Available=Abundance.x) %>%
   rename(Used=Abundance.y) %>%
@@ -259,17 +259,17 @@ short_sel <- subset(sel_data, Used>0)
 ```{r}
 # Summarize nearest trees by species
 near_trees_1 <- near_trees %>%
-  group_by(sp_name) %>%
+  group_by(Species) %>%
   summarize(Abundance = n_distinct(Date.Time))
 near_trees_2 <- near_trees %>%
   group_by(Genus) %>%
   summarize(Abundance = n_distinct(Date.Time)) %>%
-  rename(sp_name = Genus)
-near_trees_1 <- subset(near_trees_1, sp_name != "")
-near_trees_2 <- subset(near_trees_2, sp_name != "")
+  rename(Species = Genus)
+near_trees_1 <- subset(near_trees_1, Species != "")
+near_trees_2 <- subset(near_trees_2, Species != "")
 near <- rbind(near_trees_1, near_trees_2)
 
-sel_data_2 <- all_trees %>% full_join(near, by="sp_name")
+sel_data_2 <- all_trees %>% full_join(near, by="Species")
 sel_data_2 <- sel_data_2 %>%
   rename(Available=Abundance.x) %>%
   rename(Used=Abundance.y) %>%
@@ -295,14 +295,14 @@ short_sel_2 <- subset(sel_data_2, Used>0)
 # Combine lists of indices for selection of nearest trees and occupied trees
 
 ```{r}
-all_selections <- sel_data_2 %>% full_join(sel_data, by="sp_name")
+all_selections <- sel_data_2 %>% full_join(sel_data, by="Species")
 all_selections <- all_selections %>%
   select(-Available.y) %>%
   rename(Available=Available.x) %>%
   rename(Occupied=Used.y) %>%
   rename(Near=Used.x)
 ## Just species that squirrels occupied or were near
-short_selections <- short_sel_2 %>% full_join(short_sel, by="sp_name")
+short_selections <- short_sel_2 %>% full_join(short_sel, by="Species")
 short_selections <- short_selections %>%
   select(-Available.y) %>%
   rename(Available=Available.x) %>%
