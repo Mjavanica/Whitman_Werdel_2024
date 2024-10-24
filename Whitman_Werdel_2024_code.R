@@ -1,0 +1,401 @@
+
+# 1. Load packages and data.
+library(ggplot2)
+library(dplyr)
+library(AICcmodavg)
+library(broom)
+library(interactions)
+
+transects <- read.csv("all_transects.csv")
+
+# Rename columns and remove unnecessary columns.
+transects <- rename(transects, min.T= min.T.degrees.C) 
+transects <- rename(transects, max.T= max.T.degrees.C)
+transects <- rename(transects, min.T.est = estimated.min.T.degrees.C)
+transects <- rename(transects, squir.dens = squir.dens.sq.km)
+transects <- rename(transects, tree.dens = tree.density.sq.km)
+transects <- rename(transects, oak.dens = oak.density.sq.km)
+transects <- rename(transects, length = length.km)
+transects <- rename(transects, area = area.sq.km)
+
+transects <- transects %>%
+  select(-min.T.degrees.F) %>%
+  select(-estimated.min.T.degrees.F) %>%
+  select(-max.T.degrees.F)
+
+transects <- transects %>%
+  mutate(prop.oak = num.oaks/num.trees)
+
+# 2. Calculate Pearson's Correlation Coefficients to check for colinearity
+
+# Create a dataframe in which transects without recorded temperature min/max 
+# have been removed to calculate PCCs for (non-estimated) min/max temperature.
+transects_no_na <- subset(transects, !is.na(min.T))
+transects_no_na <- subset(transects_no_na, !is.na(max.T))
+
+cc_min_max <- cor(transects_no_na$min.T, transects_no_na$max.T)
+cc_min_hr <- cor(transects_no_na$hour, transects_no_na$min.T)
+cc_max_hr <- cor(transects_no_na$hour, transects_no_na$max.T)
+
+cc_hr_dur <- cor(transects$hour, transects$dur.min)
+cc_hr_min <- cor(transects$hour, transects$min.T.est)
+cc_hr_dist <- cor(transects$hour, transects$length)
+cc_hr_a <- cor(transects$hour, transects$area)
+
+cc_min_dur <- cor(transects$min.T.est, transects$dur.min)
+cc_min_dist <- cor(transects$min.T.est, transects$length)
+cc_min_a <- cor(transects$min.T.est, transects$area)
+
+cc_tree_hr <- cor(transects$tree.dens, transects$hour)
+cc_tree_dur <- cor(transects$tree.dens, transects$dur.min)
+cc_tree_dist <- cor(transects$tree.dens, transects$length)
+cc_tree_a <- cor(transects$tree.dens, transects$area)
+cc_tree_oak <- cor(transects$tree.dens, transects$oak.dens)
+cc_tree_prop <- cor(transects$tree.dens, transects$prop.oak)
+
+cc_oak_hr <- cor(transects$oak.dens, transects$hour)
+cc_oak_dur <- cor(transects$oak.dens, transects$dur.min)
+cc_oak_dist <- cor(transects$oak.dens, transects$length)
+cc_oak_a <- cor(transects$oak.dens, transects$area)
+cc_oak_prop <- cor(transects$oak.dens, transects$prop.oak)
+
+cc_dist_a <- cor(transects$length, transects$area)
+cc_dist_dur <- cor(transects$length, transects$dur.min)
+cc_a_dur <- cor(transects$area, transects$dur.min)
+cc_prop_dist <- cor(transects$prop.oak, transects$length)
+cc_prop_a <- cor(transects$prop.oak, transects$area)
+
+PCC <- c(cc_min_max, cc_min_hr, cc_max_hr, cc_hr_dur, cc_hr_min, cc_hr_dist, 
+         cc_hr_a, cc_min_dur, cc_min_dist, cc_min_a, cc_tree_hr, cc_tree_dur, 
+         cc_tree_dist, cc_tree_a, cc_tree_oak, cc_tree_prop, cc_oak_hr, 
+         cc_oak_dur, cc_oak_dist, cc_oak_a, cc_oak_prop, cc_dist_a, cc_dist_dur, 
+         cc_a_dur, cc_prop_dist, cc_prop_a)
+parameter.1 <-c("min T", "min T", "max T", "hour", "hour", "hour", "hour", 
+                "estimated min T", "estimated min T", "estimated min T", 
+                "tree dens", "tree dens", "tree dens", "tree dens", "tree dens", 
+                "tree dens", "oak dens", "oak dens", "oak dens", "oak dens", 
+                "oak dens", "dist", "dist", "area", "prop of oaks", 
+                "prop of oaks")
+parameter.2 <- c("max T", "hour", "hour", "dur", "estimated min T", "dist", 
+                 "area", "dur", "dist", "area", "hour", "dur", "dist", "area", 
+                 "oak dens", "prop of oaks", "hour", "dur", "dist", "area", 
+                 "prop of oaks", "area", "dur", "dur", "dist", "area")
+
+correlations <- data.frame(parameter.1, parameter.2, PCC)
+
+# 3. Model construction
+
+## Initial round
+### Check effect of categorical time of day
+anova_result <- aov(squir.dens ~ time.of.day, data = transects)
+summary(anova_result)
+TukeyHSD(anova_result, conf.level=.95)
+
+## Model squirrel density by time and temperature.
+### Time
+model_1a <- lm(squir.dens ~ time.of.day + length, data=transects)
+model_1b <- lm(squir.dens ~ hour + length, data=transects)
+model_1c <- lm(squir.dens ~ min.T + length, data=transects)
+model_1d <- lm(squir.dens ~ max.T + length, data=transects)
+model_1e <- lm(squir.dens ~ min.T.est + length, data=transects)
+
+model_2a <- lm(squir.dens ~ time.of.day + area, data=transects)
+model_2b <- lm(squir.dens ~ hour + area, data=transects)
+model_2c <- lm(squir.dens ~ min.T + area, data=transects)
+model_2d <- lm(squir.dens ~ max.T + area, data=transects)
+model_2e <- lm(squir.dens ~ min.T.est + area, data=transects)
+
+model_3a <- lm(squir.dens ~ tree.dens + prop.oak, data=transects)
+model_3b <- lm(squir.dens ~ oak.dens + prop.oak, data=transects)
+
+model_4a <- lm(squir.dens ~ tree.dens*prop.oak, data=transects)
+model_4b <- lm(squir.dens ~ oak.dens*prop.oak, data=transects)
+
+model_5a <- lm(squir.dens ~ tree.dens + time.of.day, data=transects)
+model_5b <- lm(squir.dens ~ tree.dens + hour, data=transects)
+model_5c <- lm(squir.dens ~ tree.dens + min.T, data=transects)
+model_5d <- lm(squir.dens ~ tree.dens + max.T, data=transects)
+model_5e <- lm(squir.dens ~ tree.dens + min.T.est, data=transects)
+
+model_6a <- lm(squir.dens ~ oak.dens + time.of.day, data=transects)
+model_6b <- lm(squir.dens ~ oak.dens + hour, data=transects)
+model_6c <- lm(squir.dens ~ oak.dens + min.T, data=transects)
+model_6d <- lm(squir.dens ~ oak.dens + max.T, data=transects)
+model_6e <- lm(squir.dens ~ oak.dens + min.T.est, data=transects)
+
+model_7a <- lm(squir.dens ~ tree.dens + dur.min, data=transects)
+model_7b <- lm(squir.dens ~ oak.dens + dur.min, data=transects)
+
+model_8a <- lm(squir.dens ~ tree.dens*time.of.day, data=transects)
+model_8b <- lm(squir.dens ~ tree.dens*hour, data=transects)
+model_8c <- lm(squir.dens ~ tree.dens*min.T, data=transects)
+model_8d <- lm(squir.dens ~ tree.dens*max.T, data=transects)
+model_8e <- lm(squir.dens ~ tree.dens*min.T.est, data=transects)
+
+model_9a <- lm(squir.dens ~ oak.dens*time.of.day, data=transects)
+model_9b <- lm(squir.dens ~ oak.dens*hour, data=transects)
+model_9c <- lm(squir.dens ~ oak.dens*min.T, data=transects)
+model_9d <- lm(squir.dens ~ oak.dens*max.T, data=transects)
+model_9e <- lm(squir.dens ~ oak.dens*min.T.est, data=transects)
+
+model_10a <- lm(squir.dens ~ tree.dens + poly(hour, 2), data=transects)
+model_10b <- lm(squir.dens ~ tree.dens + poly(min.T.est, 2), data=transects)
+
+model_11a <- lm(squir.dens ~ oak.dens + poly(hour, 2), data=transects)
+model_11b <- lm(squir.dens ~ oak.dens + poly(min.T.est, 2), data=transects)
+
+### single-variable models
+m_min.T <- lm(squir.dens ~ min.T, data=transects)
+m_max.T <- lm(squir.dens ~ max.T, data=transects)
+m_min.T.est <- lm(squir.dens ~ min.T.est, data=transects)
+m_hour <- lm(squir.dens ~ hour, data=transects)
+m_dur.min <- lm(squir.dens ~ dur.min, data=transects)
+m_length <- lm(squir.dens ~ length, data=transects)
+m_area <- lm(squir.dens ~ area, data=transects)
+m_tree.dens <- lm(squir.dens ~ tree.dens, data=transects)
+m_oak.dens <- lm(squir.dens ~ oak.dens, data=transects)
+m_prop.oak <- lm(squir.dens ~ prop.oak, data=transects)
+
+### null and global models
+null <- lm(squir.dens ~ 1, data = transects)
+global <- lm(squir.dens ~ date + hour + time.of.day + dur.min + length + area + 
+               min.T.est + tree.dens + oak.dens + prop.oak, data=transects)
+
+## Comparing models by AICc
+
+models <- list(model_1a, model_1b, model_1c, model_1d, model_1e, model_2a, 
+               model_2b, model_2c, model_2d, model_2e, model_3a, model_3b, 
+               model_4a, model_4b, model_5a, model_5b, model_5c, model_5d, 
+               model_5e, model_6a, model_6b, model_6c, model_6d, model_6e, 
+               model_7a, model_7b, model_8a, model_8b, model_8c, model_8d, 
+               model_8e, model_9a, model_9b, model_9c, model_9d, model_9e, 
+               model_10a, model_10b, model_11a, model_11b, m_min.T, m_max.T, 
+               m_min.T.est, m_hour, m_dur.min, m_length, m_area, m_tree.dens, 
+               m_oak.dens, m_prop.oak, null, global)
+
+mod_names <- c('model_1a', 'model_1b', 'model_1c', 'model_1d', 'model_1e', 
+               'model_2a', 'model_2b', 'model_2c', 'model_2d', 'model_2e', 
+               'model_3a', 'model_3b', 'model_4a', 'model_4b', 'model_5a', 
+               'model_5b', 'model_5c', 'model_5d', 'model_5e', 'model_6a', 
+               'model_6b', 'model_6c', 'model_6d', 'model_6e', 'model_7a', 
+               'model_7b', 'model_8a', 'model_8b', 'model_8c', 'model_8d', 
+               'model_8e', 'model_9a', 'model_9b', 'model_9c', 'model_9d', 
+               'model_9e', 'model_10a', 'model_10b', 'model_11a', 'model_11b', 
+               'm_min.T', 'm_max.T', 'm_min.T.est', 'm_hour', 'm_dur.min', 
+               'm_length', 'm_area', 'm_tree.dens', 'm_oak.dens', 'm_prop.oak', 
+               'null', 'global')
+
+AICc_results_1 <- aictab(cand.set = models, modnames = mod_names)
+print(AICc_results_1)
+
+# Models incorporating minimum or maximum temperature have lower AICc than 
+# similar models using hour. However, using estimated minimumum temperature 
+# instead, similar models using hour have lower AICc. 
+
+## 2nd round of model constrution and evaluation
+
+model_12a <- lm(squir.dens ~ tree.dens + hour + length, data=transects)
+model_12b <- lm(squir.dens ~ oak.dens + hour + length, data=transects)
+model_12c <- lm(squir.dens ~ tree.dens + hour + prop.oak, data=transects)
+model_12d <- lm(squir.dens ~ oak.dens + hour + prop.oak, data=transects)
+
+model_13a <- lm(squir.dens ~ tree.dens + poly(hour, 2) + length, data=transects)
+model_13b <- lm(squir.dens ~ oak.dens + poly(hour, 2) + length, data=transects)
+model_13c <- lm(squir.dens ~ tree.dens + poly(hour, 2) + prop.oak, data=transects)
+model_13d <- lm(squir.dens ~ oak.dens + poly(hour, 2) + prop.oak, data=transects)
+
+model_14a <- lm(squir.dens ~ tree.dens + hour + length + prop.oak, data=transects)
+model_14b <- lm(squir.dens ~ oak.dens + hour + length + prop.oak, data=transects)
+
+model_15a <- lm(squir.dens ~ tree.dens*prop.oak + length, data=transects)
+model_15b <- lm(squir.dens ~ oak.dens*prop.oak + length, data=transects)
+model_15c <- lm(squir.dens ~ tree.dens*prop.oak + hour, data=transects)
+model_15d <- lm(squir.dens ~ oak.dens*prop.oak + hour, data=transects)
+
+model_16a <- lm(squir.dens ~ tree.dens*hour + length, data=transects)
+model_16b <- lm(squir.dens ~ oak.dens*hour + length, data=transects)
+model_16c <- lm(squir.dens ~ tree.dens*hour + dur.min, data=transects)
+model_16d <- lm(squir.dens ~ oak.dens*hour + dur.min, data=transects)
+
+model_17a <- lm(squir.dens ~ tree.dens*prop.oak + hour + length, data=transects)
+model_17b <- lm(squir.dens ~ oak.dens*prop.oak + hour + length, data=transects)
+
+## Compare models by AICc (including models from the first round of model 
+## building with lowest AICc values)
+
+models_2 <- list(model_12a, model_12b, model_12c, model_12d, model_13a, 
+                 model_13b, model_13c, model_13d, model_14a, model_14b, 
+                 model_15a, model_15b, model_15c, model_15d, model_16a, 
+                 model_16b, model_16c, model_16d, model_17a, model_17b, 
+                 model_8b, model_9b, model_5b, model_2b, model_1b, m_min.T.est, 
+                 m_hour, m_dur.min, m_length, m_area, m_tree.dens, m_oak.dens, 
+                 m_prop.oak, null, global)
+
+mod_names_2 <- c('model_12a', 'model_12b', 'model_12c', 'model_12d', 
+                 'model_13a', 'model_13b', 'model_13c', 'model_13d', 
+                 'model_14a', 'model_14b', 'model_15a', 'model_15b', 
+                 'model_15c', 'model_15d', 'model_16a', 'model_16b', 
+                 'model_16c', 'model_16d', 'model_17a', 'model_17b', 'model_8b', 
+                 'model_9b', 'model_5b', 'model_2b', 'model_1b', 'm_min.T.est', 
+                 'm_hour', 'm_dur.min', 'm_length', 'm_area', 'm_tree.dens', 
+                 'm_oak.dens', 'm_prop.oak', 'null', 'global')
+
+AICc_results_2 <- aictab(cand.set = models_2, modnames = mod_names_2)
+print(AICc_results_2)
+
+## Comparing the highest-ranked models against single-variable, null, and global 
+## models
+models_3 <- list(model_12a, model_16a, m_min.T.est, m_hour, m_dur.min, m_length, 
+                 m_area, m_tree.dens, m_oak.dens, m_prop.oak, null, global)
+
+mod_names_3 <- c('model_12a', 'model_16a', 'm_min.T.est', 'm_hour', 'm_dur.min', 
+                 'm_length', 'm_area', 'm_tree.dens', 'm_oak.dens', 
+                 'm_prop.oak', 'null', 'global')
+
+AICc_results_3 <- aictab(cand.set = models_3, modnames = mod_names_3)
+print(AICc_results_3)
+
+## Interaction plot for the interaction between hour and tree density
+interact_plot(model_16a, pred = hour, modx = tree.dens,
+              y.label = "squirrel density", legend.main = "tree density")
+
+# 4. Diagnostic model checks
+# ANOVA
+shapiro.test(transects$squir.dens)
+#Shapiro-Wilk Test is violated.
+bartlett.test(squir.dens ~ time.of.day, data = transects)
+# Bartlett's Test is violated.
+# Check by Kruskal-Wallis test, instead of ANOVA:
+kruskal.test(squir.dens ~ time.of.day, data = transects)
+
+# Linear regression (performed here for the two highest-ranked models by AICc 
+# and for the three additional models whose outputs are included in the 
+# supplemental tables)
+ggplot(model_16a, aes(sample=model_16a$residuals)) +
+  stat_qq() + 
+  stat_qq_line() +
+  ylim(c(-500, 500)) +
+  labs(title = "squirrel density = tree density*hour + distance", 
+       x = "Sample Quantiles", y = "Theoretical Quantiles")
+
+ggplot(model_12a, aes(sample=model_12a$residuals)) +
+  stat_qq() + 
+  stat_qq_line() +
+  ylim(c(-500, 500)) +
+  labs(title = "squirrel density = tree density + hour + distance", 
+       x = "Sample Quantiles", y = "Theoretical Quantiles")
+
+ggplot(model_16b, aes(sample=model_16b$residuals)) +
+  stat_qq() + 
+  stat_qq_line() +
+  ylim(c(-500, 500)) +
+  labs(title = "squirrel density = oak density*hour + distance", 
+       x = "Sample Quantiles", y = "Theoretical Quantiles")
+
+ggplot(model_17b, aes(sample=model_17b$residuals)) +
+  stat_qq() + 
+  stat_qq_line() +
+  ylim(c(-500, 500)) +
+  labs(title = "squirrel density = oak density*oak proportion + hour + 
+       distance", x = "Sample Quantiles", y = "Theoretical Quantiles")
+
+ggplot(model_12b, aes(sample=model_12b$residuals)) +
+  stat_qq() + 
+  stat_qq_line() +
+  ylim(c(-500, 500)) +
+  labs(title = "squirrel density = oak density + hour + distance", 
+       x = "Sample Quantiles", y = "Theoretical Quantiles")
+
+# 5. Calculate Jacob's Selection Index of trees were occupied by a squirrel and 
+# that squirrels were nearest to.
+# Import data
+all_trees <- read.csv('trees_by_species.csv')
+occu_trees <- read.csv('squirrels_in_trees.csv')
+near_trees <- read.csv('squirrels_near_trees.csv')
+near_trees <- subset(near_trees, duplicate != "yes")
+
+# Summarize number of occupied trees by species
+occu_trees_1 <- occu_trees %>%
+  group_by(Species) %>%
+  summarize(Abundance = n_distinct(Date.Time))
+occu_trees_2 <- occu_trees %>%
+  group_by(Genus) %>%
+  summarize(Abundance = n_distinct(Date.Time)) %>%
+  rename(Species = Genus)
+occu_trees_2 <- subset(occu_trees_2, Species != "Triadica sp.")
+occu_trees_2 <- subset(occu_trees_2, Species != "Lagerstroemia sp.")
+occu_trees_2 <- subset(occu_trees_2, Species != "Unknown")
+occupied <- rbind(occu_trees_1, occu_trees_2)
+sel_data <- all_trees %>% full_join(occupied, by="Species")
+sel_data <- sel_data %>%
+  rename(Available=Abundance.x) %>%
+  rename(Used=Abundance.y) %>%
+  mutate(Available=as.numeric(Available)) %>%
+  mutate(Used=as.numeric(Used))
+sel_data[is.na(sel_data)] <- 0
+
+# Calculte Jacob's selection of trees occupied
+## r = proportion of species out of occupied trees
+## p = proportion of species out of available trees
+## Jacob's: (r-p)/(r+p-2rp)
+Jacob_Occupied <- numeric()
+for(i in 1:nrow(sel_data)){
+  r = sel_data[i, 3]/sum(sel_data$Used)
+  p = sel_data[i, 2]/sum(sel_data$Available)
+  J = (r - p)/(r + p - 2*r*p)
+  Jacob_Occupied <- append(Jacob_Occupied, J)
+}
+
+sel_data <- cbind(sel_data, Jacob_Occupied)
+## Just the tree species that had squirrels
+short_sel <- subset(sel_data, Used>0)
+
+# Summarize nearest trees by species
+near_trees_1 <- near_trees %>%
+  group_by(Species) %>%
+  summarize(Abundance = n_distinct(Date.Time))
+near_trees_2 <- near_trees %>%
+  group_by(Genus) %>%
+  summarize(Abundance = n_distinct(Date.Time)) %>%
+  rename(Species = Genus)
+near_trees_1 <- subset(near_trees_1, Species != "")
+near_trees_2 <- subset(near_trees_2, Species != "")
+near <- rbind(near_trees_1, near_trees_2)
+
+sel_data_2 <- all_trees %>% full_join(near, by="Species")
+sel_data_2 <- sel_data_2 %>%
+  rename(Available=Abundance.x) %>%
+  rename(Used=Abundance.y) %>%
+  mutate(Available=as.numeric(Available)) %>%
+  mutate(Used=as.numeric(Used))
+sel_data_2[is.na(sel_data_2)] <- 0
+
+# Calculte Jacob's selection of trees nearest to squirrel
+## Jacob's: (r-p)/(r+p-2rp)
+Jacob_Near <- numeric()
+for(i in 1:nrow(sel_data_2)){
+  r = sel_data_2[i, 3]/sum(sel_data_2$Used)
+  p = sel_data_2[i, 2]/sum(sel_data_2$Available)
+  J = (r - p)/(r + p - 2*r*p)
+  Jacob_Near <- append(Jacob_Near, J)
+}
+
+sel_data_2 <- cbind(sel_data_2, Jacob_Near)
+## Just the species that actually had squirrels nearby
+short_sel_2 <- subset(sel_data_2, Used>0) 
+
+## Combine lists of indices for selection of nearest trees and occupied trees
+all_selections <- sel_data_2 %>% full_join(sel_data, by="Species")
+all_selections <- all_selections %>%
+  select(-Available.y) %>%
+  rename(Available=Available.x) %>%
+  rename(Occupied=Used.y) %>%
+  rename(Near=Used.x)
+## Just species that squirrels occupied or were near
+short_selections <- short_sel_2 %>% full_join(short_sel, by="Species")
+short_selections <- short_selections %>%
+  select(-Available.y) %>%
+  rename(Available=Available.x) %>%
+  rename(Occupied=Used.y) %>%
+  rename(Near=Used.x)
+
